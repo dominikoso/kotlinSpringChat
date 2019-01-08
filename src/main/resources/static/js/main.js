@@ -54,15 +54,23 @@ function onError(error) {
 
 function sendMessage(event) {
     var messageContent = messageInput.value.trim();
-    if(messageContent && stompClient) {
-        var chatMessage = {
-            sender: username,
-            content: messageInput.value,
-            type: 'CHAT'
-        };
-        stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
-        messageInput.value = '';
-    }
+        if (messageContent && stompClient) {
+            var chatMessage = {
+                sender: username,
+                content: messageInput.value,
+                type: 'CHAT'
+            };
+
+            if (messageContent.startsWith("/setnick")) {
+                stompClient.send("/app/chat.changeUser", {}, JSON.stringify(chatMessage));
+                messageInput.value = '';
+            }else if (messageContent.startsWith("/help")){
+                stompClient.send("/app/chat.showHelp");
+            }else {
+                stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
+                messageInput.value = '';
+            }
+        }
     event.preventDefault();
 }
 
@@ -78,7 +86,11 @@ function onMessageReceived(payload) {
     } else if (message.type === 'LEAVE') {
         messageElement.classList.add('event-message');
         message.content = message.sender + ' left!';
-    } else {
+    } else if (message.type === 'CHANGED'){
+        messageElement.classList.add('event-message');
+        message.content = username + ' is now known as ' + message.sender + '!';
+        username = message.sender;
+    }else {
         messageElement.classList.add('chat-message');
 
         var avatarElement = document.createElement('i');
@@ -103,7 +115,6 @@ function onMessageReceived(payload) {
     messageArea.appendChild(messageElement);
     messageArea.scrollTop = messageArea.scrollHeight;
 }
-
 
 function getAvatarColor(messageSender) {
     var hash = 0;

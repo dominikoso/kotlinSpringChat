@@ -104,6 +104,10 @@ button.accent {
     color: #fff;
 }
 
+p {
+    white-space: pre;
+}
+
 #username-page {
     text-align: center;
 }
