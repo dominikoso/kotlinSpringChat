@@ -26,13 +26,13 @@ class WebSocketEventListener {
 
     @EventListener
     fun handleWebSocketDisconnectListener(event : SessionDisconnectEvent){
-        var headerAccessor : StompHeaderAccessor = StompHeaderAccessor.wrap(event.message)
+        val headerAccessor : StompHeaderAccessor = StompHeaderAccessor.wrap(event.message)
 
-        var username : String ?= headerAccessor.sessionAttributes?.get("username") as String
+        val username : String ?= headerAccessor.sessionAttributes?.get("username") as String
         if (username != null){
-            logger?.info("User Disconnected : " + username)
+            logger?.info("User Disconnected : $username")
 
-            var chatMessage : ChatMessage = ChatMessage(ChatMessage.MessageType.LEAVE, username, "")
+            val chatMessage : ChatMessage = ChatMessage(ChatMessage.MessageType.LEAVE, username, "")
 
             messagingTemplate.convertAndSend("/topic/public", chatMessage)
         }
