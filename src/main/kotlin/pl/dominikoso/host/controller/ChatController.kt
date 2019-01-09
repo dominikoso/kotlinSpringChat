@@ -14,7 +14,6 @@ class ChatController {
     @MessageMapping("/chat.sendMessage")
     @SendTo("/topic/public")
     fun sendMessage(@Payload chatMessage: ChatMessage) : ChatMessage {
-        System.out.println("${chatMessage.sender}: ${chatMessage.content}")
         return chatMessage
     }
 
@@ -28,7 +27,7 @@ class ChatController {
     @MessageMapping("/chat.processCommand")
     @SendTo("/topic/public")
     fun commandProcessor(@Payload chatMessage: ChatMessage, headerAccessor: SimpMessageHeaderAccessor) :ChatMessage {
-        return ChatCommandHandler.processCommand(chatMessage, headerAccessor);
+        return ChatCommandHandler.processCommand(chatMessage, headerAccessor)
     }
 
 }

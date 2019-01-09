@@ -108,6 +108,13 @@ p {
     white-space: pre;
 }
 
+img {
+    height: auto;
+    width: auto;
+    max-width: 250px;
+    max-height: 250px;
+}
+
 #username-page {
     text-align: center;
 }

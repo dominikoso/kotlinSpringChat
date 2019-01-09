@@ -8,5 +8,5 @@ data class ChatMessage (val type : MessageType,
                         @Size(max = 300, message = "Maximum length of text message is 300 characters")
                         val content : String?){
 
-    enum class MessageType {CHAT, JOIN, LEAVE, CHANGED, SYSTEM}
+    enum class MessageType {CHAT, JOIN, LEAVE, CHANGED, SYSTEM, IMAGE}
 }

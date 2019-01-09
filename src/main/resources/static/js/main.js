@@ -68,7 +68,7 @@ function sendMessage(event) {
             //     stompClient.send("/app/chat.showHelp");
             //     messageInput.value = '';
             if (messageContent.startsWith("/")) {
-                stompClient.send("/app/chat.processCommand", {}, JSON.stringify(chatMessage))
+                stompClient.send("/app/chat.processCommand", {}, JSON.stringify(chatMessage));
                 messageInput.value = '';
             }else {
                 stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
@@ -90,10 +90,12 @@ function onMessageReceived(payload) {
     } else if (message.type === 'LEAVE') {
         messageElement.classList.add('event-message');
         message.content = message.sender + ' left!';
-    } else if (message.type === 'CHANGED'){
+    } else if (message.type === 'CHANGED') {
         messageElement.classList.add('event-message');
-        message.content = username + ' is now known as ' + message.sender + '!';
-        username = message.sender;
+        if (username === message.content) {
+            username = message.sender;
+        }
+        message.content = message.content + ' is now known as ' + message.sender + '!';
     }else {
         messageElement.classList.add('chat-message');
 
@@ -118,9 +120,24 @@ function onMessageReceived(payload) {
 
     var textElement = document.createElement('p');
     var messageText = document.createTextNode(message.content);
-    textElement.appendChild(messageText);
-
-    messageElement.appendChild(textElement);
+    if (message.type === 'IMAGE'){
+        var imageLinkElement = document.createElement('a');
+        imageLinkElement.href = message.content;
+        var imgElement = document.createElement('img');
+        imgElement.src = message.content;
+        textElement.appendChild(imgElement);
+        imageLinkElement.appendChild(textElement);
+        messageElement.appendChild(imageLinkElement);
+    }else if (linkify(message.content) !== -1){
+        textElement.appendChild(messageText);
+        var linkElement = document.createElement('a');
+        linkElement.href = message.content;
+        linkElement.appendChild(textElement);
+        messageElement.appendChild(linkElement);
+    }else {
+        textElement.appendChild(messageText);
+        messageElement.appendChild(textElement);
+    }
 
     messageArea.appendChild(messageElement);
     messageArea.scrollTop = messageArea.scrollHeight;
@@ -133,6 +150,11 @@ function getAvatarColor(messageSender) {
     }
     var index = Math.abs(hash % colors.length);
     return colors[index];
+}
+
+function linkify(text) {
+    var urlRegex =/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+    return text.search(urlRegex);
 }
 
 usernameForm.addEventListener('submit', connect, true)

@@ -2,12 +2,17 @@ package pl.dominikoso.host.tools
 
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor
 import pl.dominikoso.host.model.ChatMessage
+import java.io.IOException
+import java.net.MalformedURLException
+import java.net.URL
+import java.net.URLClassLoader
+import java.net.URLConnection
 import java.util.*
 
 class ChatCommandHandler {
     companion object {
 
-        private var commands : List<String> = Arrays.asList("/setnick", "/help")
+        private var commands : List<String> = Arrays.asList("/setnick", "/help", "/img")
 
         private fun recognizeCommand(chatMessage: ChatMessage): String {
 
@@ -23,24 +28,50 @@ class ChatCommandHandler {
             val command = recognizeCommand(chatMessage)
             return when (command) {
                 "/setnick" -> {
+                    val oldUser: String = chatMessage.sender as String
                     val spaceIdx: Int = chatMessage.content?.indexOf(" ")!!
+                    System.out.println(spaceIdx)
                     val newUser: String = chatMessage.content.substring(spaceIdx + 1)
-                    if (newUser.length > 20) {
+                    if (newUser.length > 20 || newUser.length < 2 || spaceIdx == -1) {
                         ChatMessage(ChatMessage.MessageType.SYSTEM,
                                 "SYSTEM",
-                                "Maximum nick length is 20 chars")
+                                "Nick length must me min 2 chars and maximum 20 chars")
                     }else {
                         headerAccessor.sessionAttributes?.remove("username", chatMessage.sender)
                         headerAccessor.sessionAttributes?.put("username", newUser)
-                        ChatMessage(ChatMessage.MessageType.CHANGED, newUser, "")
+                        ChatMessage(ChatMessage.MessageType.CHANGED, newUser, oldUser)
                     }
                 }
                 "/help" -> {
                     ChatMessage(ChatMessage.MessageType.SYSTEM,
                             "SYSTEM",
                             "List of available commands: \n " +
-                                    "/setnick {nickname} - changes your nickname \n" +
-                                    " /help - shows this list")
+                                    "/setnick {nickname} - changes your nickname \n " +
+                                    "/img {link} - send image to chat \n " +
+                                    "/help - shows this list")
+                }
+                "/img" -> {
+                    val spaceIdx: Int = chatMessage.content?.indexOf(" ")!!
+                    val imgLink : String = chatMessage.content.substring(spaceIdx+1)
+                    if (spaceIdx == -1){
+                        ChatMessage(ChatMessage.MessageType.SYSTEM,
+                                "SYSTEM",
+                                "Image link cannot be empty")
+                    }
+                    try {
+                        val url = URL(imgLink)
+                        val conn : URLConnection = url.openConnection()
+                        conn.connect()
+                    }catch (e : MalformedURLException){
+                        return ChatMessage(ChatMessage.MessageType.SYSTEM,
+                                "SYSTEM",
+                                "Invalid image link")
+                    }catch (e : IOException){
+                        return ChatMessage(ChatMessage.MessageType.SYSTEM,
+                                "SYSTEM",
+                                "Cannot access image link")
+                    }
+                    ChatMessage(ChatMessage.MessageType.IMAGE, chatMessage.sender, imgLink)
                 }
                 else -> {
                     ChatMessage(ChatMessage.MessageType.SYSTEM, "SYSTEM", "Requested command not found")
