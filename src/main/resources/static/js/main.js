@@ -61,11 +61,15 @@ function sendMessage(event) {
                 type: 'CHAT'
             };
 
-            if (messageContent.startsWith("/setnick")) {
-                stompClient.send("/app/chat.changeUser", {}, JSON.stringify(chatMessage));
+            // if (messageContent.startsWith("/setnick")) {
+            //     stompClient.send("/app/chat.changeUser", {}, JSON.stringify(chatMessage));
+            //     messageInput.value = '';
+            // }else if (messageContent.startsWith("/help")){
+            //     stompClient.send("/app/chat.showHelp");
+            //     messageInput.value = '';
+            if (messageContent.startsWith("/")) {
+                stompClient.send("/app/chat.processCommand", {}, JSON.stringify(chatMessage))
                 messageInput.value = '';
-            }else if (messageContent.startsWith("/help")){
-                stompClient.send("/app/chat.showHelp");
             }else {
                 stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
                 messageInput.value = '';
@@ -101,7 +105,13 @@ function onMessageReceived(payload) {
         messageElement.appendChild(avatarElement);
 
         var usernameElement = document.createElement('span');
-        var usernameText = document.createTextNode(message.sender);
+        var usernameText;
+        if (message.type === 'SYSTEM') {
+            usernameText = document.createTextNode(message.sender +' '+ String.fromCodePoint(0x1F916))
+        }else {
+            usernameText = document.createTextNode(message.sender);
+        }
+        //console.log(usernameText);
         usernameElement.appendChild(usernameText);
         messageElement.appendChild(usernameElement);
     }
