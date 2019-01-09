@@ -22,7 +22,7 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
 group = 'pl.dominikoso'
-version = '0.0.1-SNAPSHOT'
+version = '0.2.5_09.01'
 sourceCompatibility = 1.8
 compileKotlin {
 	kotlinOptions {
