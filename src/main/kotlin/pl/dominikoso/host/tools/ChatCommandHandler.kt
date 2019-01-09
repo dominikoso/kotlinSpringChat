@@ -30,7 +30,6 @@ class ChatCommandHandler {
                 "/setnick" -> {
                     val oldUser: String = chatMessage.sender as String
                     val spaceIdx: Int = chatMessage.content?.indexOf(" ")!!
-                    System.out.println(spaceIdx)
                     val newUser: String = chatMessage.content.substring(spaceIdx + 1)
                     if (newUser.length > 20 || newUser.length < 2 || spaceIdx == -1) {
                         ChatMessage(ChatMessage.MessageType.SYSTEM,
