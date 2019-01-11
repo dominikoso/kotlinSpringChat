@@ -100,16 +100,22 @@ function onMessageReceived(payload) {
         messageElement.classList.add('chat-message');
 
         var avatarElement = document.createElement('i');
-        var avatarText = document.createTextNode(message.sender[0]);
-        avatarElement.appendChild(avatarText);
-        avatarElement.style['background-color'] = getAvatarColor(message.sender);
-
+        var avatarText;
+        if (message.type === 'SYSTEM') {
+            avatarText = document.createTextNode('S');
+            avatarElement.appendChild(avatarText);
+            avatarElement.style['background-color'] = getAvatarColor('SYSTEM');
+        }else {
+            avatarText = document.createTextNode(message.sender[0]);
+            avatarElement.appendChild(avatarText);
+            avatarElement.style['background-color'] = getAvatarColor(message.sender);
+        }
         messageElement.appendChild(avatarElement);
 
         var usernameElement = document.createElement('span');
         var usernameText;
         if (message.type === 'SYSTEM') {
-            usernameText = document.createTextNode(message.sender +' '+ String.fromCodePoint(0x1F916))
+            usernameText = document.createTextNode('SYSTEM '+ String.fromCodePoint(0x1F916))
         }else {
             usernameText = document.createTextNode(message.sender);
         }
@@ -138,9 +144,15 @@ function onMessageReceived(payload) {
         textElement.appendChild(messageText);
         messageElement.appendChild(textElement);
     }
-
-    messageArea.appendChild(messageElement);
-    messageArea.scrollTop = messageArea.scrollHeight;
+    if (message.type === 'SYSTEM') {
+        if (message.sender === username){
+            messageArea.appendChild(messageElement);
+            messageArea.scrollTop = messageArea.scrollHeight;
+        }
+    }else{
+        messageArea.appendChild(messageElement);
+        messageArea.scrollTop = messageArea.scrollHeight;
+    }
 }
 
 function getAvatarColor(messageSender) {
@@ -157,5 +169,5 @@ function linkify(text) {
     return text.search(urlRegex);
 }
 
-usernameForm.addEventListener('submit', connect, true)
-messageForm.addEventListener('submit', sendMessage, true)
+usernameForm.addEventListener('submit', connect, true);
+messageForm.addEventListener('submit', sendMessage, true);
