@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.socket.messaging.SessionConnectedEvent
 import org.springframework.web.socket.messaging.SessionDisconnectEvent
 import pl.dominikoso.host.model.ChatMessage
+import pl.dominikoso.host.tools.UserSecurityHandler
 
 @Component
 class WebSocketEventListener {
@@ -33,7 +34,7 @@ class WebSocketEventListener {
             logger?.info("User Disconnected : $username")
 
             val chatMessage : ChatMessage = ChatMessage(ChatMessage.MessageType.LEAVE, username, "")
-
+            UserSecurityHandler.removeUser(username)
             messagingTemplate.convertAndSend("/topic/public", chatMessage)
         }
     }

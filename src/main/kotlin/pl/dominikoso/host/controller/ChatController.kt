@@ -7,6 +7,7 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor
 import org.springframework.stereotype.Controller
 import pl.dominikoso.host.model.ChatMessage
 import pl.dominikoso.host.tools.ChatCommandHandler
+import pl.dominikoso.host.tools.UserSecurityHandler
 
 @Controller
 class ChatController {
@@ -20,8 +21,9 @@ class ChatController {
     @MessageMapping("/chat.addUser")
     @SendTo("/topic/public")
     fun addUser(@Payload chatMessage: ChatMessage, headerAccessor: SimpMessageHeaderAccessor) : ChatMessage {
-        headerAccessor.sessionAttributes ?.put("username", chatMessage.sender)
-        return chatMessage
+            headerAccessor.sessionAttributes?.put("username", chatMessage.sender)
+            UserSecurityHandler.addUser(chatMessage.sender!!)
+            return chatMessage
     }
 
     @MessageMapping("/chat.processCommand")

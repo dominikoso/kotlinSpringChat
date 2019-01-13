@@ -40,7 +40,7 @@ function onConnected() {
     stompClient.send("/app/chat.addUser",
         {},
         JSON.stringify({sender: username, type: 'JOIN'})
-    )
+    );
 
     connectingElement.classList.add('hidden');
 }
@@ -60,13 +60,6 @@ function sendMessage(event) {
                 content: messageInput.value,
                 type: 'CHAT'
             };
-
-            // if (messageContent.startsWith("/setnick")) {
-            //     stompClient.send("/app/chat.changeUser", {}, JSON.stringify(chatMessage));
-            //     messageInput.value = '';
-            // }else if (messageContent.startsWith("/help")){
-            //     stompClient.send("/app/chat.showHelp");
-            //     messageInput.value = '';
             if (messageContent.startsWith("/")) {
                 stompClient.send("/app/chat.processCommand", {}, JSON.stringify(chatMessage));
                 messageInput.value = '';

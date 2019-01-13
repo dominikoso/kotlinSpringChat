@@ -35,12 +35,20 @@ class ChatCommandHandler {
                     val newUser: String = chatMessage.content.substring(spaceIdx + 1)
                     if (newUser.length > 20 || newUser.length < 2 || spaceIdx == -1) {
                         ChatMessage(ChatMessage.MessageType.SYSTEM,
-                                "SYSTEM",
+                                chatMessage.sender,
                                 "Nick length must me min 2 chars and maximum 20 chars")
                     }else {
-                        headerAccessor.sessionAttributes?.remove("username", chatMessage.sender)
-                        headerAccessor.sessionAttributes?.put("username", newUser)
-                        ChatMessage(ChatMessage.MessageType.CHANGED, newUser, oldUser)
+                        return if (UserSecurityHandler.findUser(newUser)){
+                            ChatMessage(ChatMessage.MessageType.SYSTEM,
+                                    chatMessage.sender,
+                                    "This nickname is already taken")
+                        }else {
+                            headerAccessor.sessionAttributes?.remove("username", chatMessage.sender)
+                            UserSecurityHandler.removeUser(chatMessage.sender)
+                            headerAccessor.sessionAttributes?.put("username", newUser)
+                            UserSecurityHandler.addUser(newUser)
+                            ChatMessage(ChatMessage.MessageType.CHANGED, newUser, oldUser)
+                        }
                     }
                 }
                 "/help" -> {
